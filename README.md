@@ -2,6 +2,10 @@
 
 This project is a Python-based script that tracks NBA games in real-time, using the NBA API to check live game scores and send notifications via a Discord webhook when a game is within 5 points with 5 minutes left in the fourth quarter.
 
+<div align="center">
+  <img src=https://github.com/user-attachments/assets/a02a70c6-8355-4d19-95a1-19d2aa80ebce>
+</div>
+
 ## Features
 
 - Track live NBA games and monitor scores in real-time.
