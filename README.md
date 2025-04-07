@@ -1,3 +1,4 @@
+![Uploading NBA Alerts On Discord.png…]()
 # Live NBA Close Game Tracker
 
 This project is a Python-based script that tracks NBA games in real-time, using the NBA API to check live game scores and send notifications via a Discord webhook when a game is within 5 points with 5 minutes left in the fourth quarter.
