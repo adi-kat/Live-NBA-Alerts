@@ -2,10 +2,10 @@ import json
 import requests 
 import re
 import asyncio
-from teamEmoji import team_emojis
+from teamEmoji1 import team_emojis
 from bs4 import BeautifulSoup 
 from discord_webhook import DiscordWebhook, DiscordEmbed
-from nba_api.live.nba.endpoints import scoreboard 
+from nba_api.live.nba.endpoints import scoreboard
 
 
 with open("config.json") as f:
@@ -14,57 +14,34 @@ WEBHOOK_URL = config["webhookUrl"]
 
 
 def get_game_link(home_team, away_team):
-    streameast_url = "https://the.streameast.app/nba/streams4"
-    crackstreams_url = "https://crackstreams.cx/nbastreams/live1"
-    onestream_url = "https://1stream.eu/nbastreams"
-    methstreams_url = "https://methstreams.cx/nbastreams"
+    stream_urls = [
+        "https://the.streameast.app/nba/streams4",
+        "https://crackstreams.cx/nbastreams/live1",
+        "https://1stream.eu/nbastreams",
+        "https://methstreams.cx/nbastreams"
+    ]
 
-    streameast_link = None
-    crackstreams_link = None
-    onestream_link = None
-    methstreams_link = None
-    
-    response = requests.get(streameast_url, headers={"User-Agent": "Mozilla/5.0"})
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.text, "html.parser")
-        games = soup.find_all("a", href=True)
-        for game in games:
-            link = game["href"]
-            if 'nba/' in link and home_team.lower() in link.lower() and away_team.lower() in link.lower():
-                streameast_link = f"{link}"
-                break
+    stream_links = {
+        "Streameast": None,
+        "Crackstreams": None,
+        "Onestream": None,
+        "Methstreams": None
+    }
 
-    response = requests.get(onestream_url, headers={"User-Agent": "Mozilla/5.0"})
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.text, "html.parser")
-        games = soup.find_all("a", href=True)
-        for game in games:
-            link = game["href"]
-            if home_team.lower() in link.lower() and away_team.lower() in link.lower():
-                onestream_link = f"{link}"
-                break
-
-    response = requests.get(crackstreams_url, headers={"User-Agent": "Mozilla/5.0"})
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.text, "html.parser")
-        games = soup.find_all("a", href=True)
-        for game in games:
-            link = game["href"]
-            if home_team.lower() in link.lower() and away_team.lower() in link.lower():
-                crackstreams_link = f"{link}"
-                break
-
-    response = requests.get(methstreams_url, headers={"User-Agent": "Mozilla/5.0"})
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.text, "html.parser")
-        games = soup.find_all("a", href=True)
-        for game in games:
-            link = game["href"]
-            if home_team.lower() in link.lower() and away_team.lower() in link.lower():
-                methstreams_link = f"{link}"
-                break
-    
-    return streameast_link, onestream_link, crackstreams_link, methstreams_link
+    for i, url in enumerate(stream_urls):
+        try: 
+            response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
+            if response.status_code == 200:
+                soup = BeautifulSoup(response.text, "html.parser")
+                games = soup.find_all("a", href=True)
+                for game in games:
+                    link = game["href"]
+                    if home_team.lower() in link.lower() and away_team.lower() in link.lower():
+                        stream_links[list(stream_links.keys())[i]] = link 
+                        break
+        except requests.RequestException as e: 
+            print(f"Error fetching stream links for {url}: {e}")
+    return stream_links
 
 
 async def check_games():
@@ -90,7 +67,7 @@ async def check_games():
                     seconds_left = int(match.group(2))
                 else:
                     minutes_left = 0
-                    seconds_left = 0
+                    seconds_left = 00
 
                 home_team = game["homeTeam"]["teamName"]
                 away_team = game["awayTeam"]["teamName"]
@@ -101,8 +78,9 @@ async def check_games():
                 home_emoji = team_emojis.get(home_team, {}).get("emoji", "")
                 away_emoji = team_emojis.get(away_team, {}).get("emoji", "")
 
-                if period == 4 and minutes_left <= 5 and seconds_left != 0 and score_diff <= 5:
+                if period == 4 and minutes_left <= 4 and seconds_left != 0 and score_diff <= 5:
                     print(f"Close game detected: {away_team} vs {home_team}")
+                    
                     webhook = DiscordWebhook(url=WEBHOOK_URL)
                     
                     embed = DiscordEmbed(
@@ -110,18 +88,23 @@ async def check_games():
                         description=f"{away_emoji} **{away_team}** vs {home_emoji} **{home_team}**\nScore: **{away_score}-{home_score}**\n⏳ **{minutes_left}:{seconds_left:02d}** left in Q4!\n",
                         color="FF0000"
                     )
-                    
-                    streameast_link, onestream_link, crackstreams_link, methstreams_link = get_game_link(home_team, away_team)
-                    if streameast_link and onestream_link and crackstreams_link and methstreams_link:
-                        game_field = f"\n[Streameast]({streameast_link})\n[1Stream]({onestream_link})\n[Crackstreams]({crackstreams_link})\n[Methstreams]({methstreams_link})"
-                        embed.add_embed_field(
-                            name="Watch the game here: ",
-                            value=f"{game_field}",
-                            inline=True,
-                        )
-    
+
+                    stream_links = get_game_link(home_team, away_team)
+
+                    if any(stream_links.values()): 
+                        game_field = ""
+                        for name, link in stream_links.items():
+                            if link:
+                                game_field += f"\n[{name}]({link})"
+                        if game_field:
+                            embed.add_embed_field(
+                                name="Watch the game here: ",
+                                value=f"{game_field}",
+                                inline=True, )
+                        
                     webhook.add_embed(embed)
                     response = webhook.execute()
+            
                     notified_games.add(game_id)
                     
             print("Checked games, sleeping for 90 seconds...")
