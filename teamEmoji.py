@@ -20,13 +20,13 @@ team_emojis = {
     "Pelicans": {"abbreviation": "NOP", "emoji": "⚜️"},
     "Knicks": {"abbreviation": "NYK", "emoji": "🗽"},
     "Thunder": {"abbreviation": "OKC", "emoji": "🌩️"},
-    "Magic": {"abbreviation": "ORL", "emoji": "🔮"},
+    "Magic": {"abbreviation": "ORL", "emoji": "🪄"},
     "76ers": {"abbreviation": "PHI", "emoji": "🔔"},
     "Suns": {"abbreviation": "PHX", "emoji": "☀️"},
-    "Trail Blazers": {"abbreviation": "POR", "emoji": "🌲"},
+    "Trail Blazers": {"abbreviation": "POR", "emoji": "🗺"},
     "Kings": {"abbreviation": "SAC", "emoji": "👑"},
-    "Spurs": {"abbreviation": "SAS", "emoji": "🌵"},
-    "Raptors": {"abbreviation": "TOR", "emoji": "🍁"},
+    "Spurs": {"abbreviation": "SAS", "emoji": "🤠"},
+    "Raptors": {"abbreviation": "TOR", "emoji": "🦖"},
     "Jazz": {"abbreviation": "UTA", "emoji": "🎷"},
-    "Wizards": {"abbreviation": "WAS", "emoji": "🪄"}
+    "Wizards": {"abbreviation": "WAS", "emoji": "🧙‍♂️"}
 }
